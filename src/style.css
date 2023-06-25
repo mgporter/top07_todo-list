@@ -1,20 +1,28 @@
 :root {
     font-size: 16px;
-    --list-color-0: #ffeb3b;
-    --list-color-1: #aeea00;
-    --list-color-2: #80deea;
-    --list-color-3: #ff80ab;
-    --list-color-4: #ff9e00;
+    --list-color-0: #ffffff;
+    --list-color-1: #ffeb3b;
+    --list-color-2: #aeea00;
+    --list-color-3: #80deea;
+    --list-color-4: #ff80ab;
+    --list-color-5: #ff9e00;
+    --bg-color-0: #ffffff;
+    --bg-color-1: #ffeb3b11;
+    --bg-color-2: #aeea0011;
+    --bg-color-3: #80deea11;
+    --bg-color-4: #ff80ab11;
+    --bg-color-5: #ff9e0011;
+    --app-font: 'Open Sans', 'Calibri', sans-serif;
 }
 
 html {
-    height: 100%;
+    min-height: 100vh;
 }
 
 body {
-    height:100%;
+    min-height: 100vh;
     margin:0;
-    font-family: 'Open Sans', 'Calibri', sans-serif;
+    font-family: var(--app-font);
 }
 
 h1 {
@@ -51,19 +59,186 @@ p {
     line-height: 1.2rem;
 }
 
+
+
+/* grid layout setup */
+
+#master-grid {
+    display:grid;
+    gap:0;
+    min-height: 100vh;
+    grid-template-areas: 
+        "lists content item-details";
+    grid-template-columns: 1fr 3fr 1fr;
+}
+
+@media screen and (max-width:1024px) {
+    #master-grid {
+        display:grid;
+        gap:0;
+        grid-template-areas: 
+            "lists item-details"
+            "lists content";
+        grid-template-columns: 1fr 3fr;
+        grid-template-rows: min-content max-content;
+    }
+}
+
+#logo-div-container {
+    grid-area: logo;
+    position:sticky;
+}
+
+#lists-nav {
+    grid-area: lists;
+}
+
+#lists-detail-container {
+    grid-area: list-details;
+}
+
+#content-container {
+    grid-area: content;
+}
+
+#details-container {
+    grid-area: item-details;
+}
+
+
+/* lists-nav styling */
+
+#logo-div-container {
+    display:flex;
+    flex-direction: column;
+    align-items: center;
+    gap:16px;
+    padding:24px;
+
+    & .logo-circle {
+        width:60px;
+        height:60px;
+        border-radius: 100%;
+        background-color: rgb(147, 163, 234);
+        border:2px solid rgb(82, 82, 82);
+    }
+}
+
+#lists-nav {
+    display:flex;
+    flex-direction: column;
+    background-color: rgb(237, 237, 237);
+    color:black;
+    border-right:2px solid rgb(111, 111, 111);
+        
+    & #add-list-container {
+        align-self: center;
+        width:80%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 12px;
+
+        & .add-list-separator {
+            height:1px;
+            background-color: rgb(134, 134, 134);
+            width:40%;
+            border-radius: 8px;
+        }
+
+        & .add-list-btn {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            
+            width:20px;
+            height:20px;
+            border-radius: 100%;
+            background-color: rgb(94, 94, 94);
+            color:white;
+            border: 1px solid black;
+            transition: 0.2s;
+        }
+
+        & .add-list-btn:hover {
+            background-color: black;
+        }
+    }
+}
+
+#user-lists {
+    display:flex;
+    flex-direction: column;
+    margin: 24px 16px 58px 16px;
+    gap: 8px;
+}
+
+.list-row {
+    display:flex;
+    align-items: center;
+    padding: 4px;
+    font-size:0.8rem;
+    gap:6px;
+    color:black;
+    border-radius: 16px;
+}
+
+& .list-row:hover {
+    background-color: white;
+    transition: 0.1s;
+}
+
+.list-circle {
+    width:10px;
+    height:10px;
+    background-color: var(--list-color-1);
+    border: 1px solid rgb(181, 181, 181);
+    border-radius:100%;
+}
+
+/* .list-name {
+
+} */
+
+.list-date {
+    color: gray;
+    font-style:italic;
+}
+
+
+#selected-list-detail {
+    display:flex;
+    flex-direction: column;
+    align-self:center;
+    width:90%;
+    gap:8px;
+    border-top:1px solid rgb(134, 134, 134);
+    padding: 16px 0;
+    /* background-color: white; */
+    font-size:0.8rem;
+    flex: 1 0 auto;
+}
+
+#selected-list-detail > h6 {
+    align-self:center;
+    margin-bottom:16px;
+}
+
+
 /* Content styling */
 
-/* div {
-    border:1px solid red;
-} */
 
 #content-container {
     display:flex;
     flex-direction:column;
-    padding:48px;
+    padding:24px;
     gap:24px;
     align-items:stretch;
-    width: min(600px, 90%);
+    /* height: max-content; */
+    /* width: min(600px, 90%); */
+    /* width: 600px; */
+    /* margin-right:260px; */
+    background-color: var(--bg-color-0);
 }
 
 .list-title {
@@ -73,7 +248,11 @@ p {
     appearance: none;
     line-height: 4rem;
     padding: 0 0 0 10px;
-    margin-left:-10px;
+    margin: 0 0 0 -10px;
+    background-color: transparent;
+    font-family: var(--app-font);
+    overflow: hidden;
+    resize:none;
 }
 
 .list-title:focus-visible {
@@ -83,13 +262,13 @@ p {
 }
 
 .list-description {
-    width: max(400px, 80%);
+    width: min(600px, 100%);
     resize:none;
     overflow: hidden;
     border:none;
-    font-family: 'Open Sans', 'Calibri', sans-serif;
+    font-family: var(--app-font);
     margin-left:-16px;
-    background:inherit;
+    background:transparent;
     border: 2px solid transparent;
     border-radius: 24px;
     padding: 16px 16px 0 16px;
@@ -98,6 +277,7 @@ p {
 .list-description:focus-visible {
     outline:none;
     border:2px solid rgb(163, 163, 163);
+    background-color: white;
 }
 
 .add-item-container {
@@ -162,40 +342,51 @@ p {
         border-radius: 16px;
         padding:4px;
         user-select: none;
+        position: relative;
+        z-index: 10;
     }
 
+    /* We need to set the z-index higher than the dropzones here,
+    so that if the user starts a drag, the dropzones will not cover
+    the element and prevent that drag. The higher hover z-index means
+    that the element is already in front of the dropzone before
+    the drag is started, which fixed this problem. */
     & .item-row:hover {
         background-color: rgb(238, 238, 238);
         transition: 0.1s;
+        z-index: 100;
     }
 
     & .item-completeby {
         color: rgb(126, 126, 126);
     }
 
-    & .dropzone-container {
-        position:absolute;
-        background-color: rgba(146, 146, 146, 0.38);
-        top:-1.3rem;
-        right:0;
-        bottom:-1.3rem;
-        left:0;
-        z-index:50;
-        flex-direction: column;
-        justify-content: flex-start;
-        align-items: flex-start;
-        gap:8px;
-        display:none;
-    }
-
     & .dropzone {
         position:relative;
-        width:100%;
-        height:1.6rem;
-        margin: -1rem 0;
-        background-color: rgba(146, 146, 146, 0.38);
-        z-index:50;
+        width:min(100%, 300px);
+        height:2.8rem;
+        margin: -1.6rem 0 -1.6rem 2rem;
+        /* background-color: rgba(146, 146, 146, 0.38); */
+        z-index:1;
         visibility:hidden;
+        display:flex;
+        flex-direction: column;
+        justify-content: center;
+
+        & > .dropzone-bar {
+            display:block;
+            width: 100%;
+            height:4px;
+            border-radius: 4px;
+            background-color: transparent;
+            pointer-events: none;
+            transition: 0.3s;
+        }
+    }
+
+    & .show-dropzones {
+        visibility: visible;
+        z-index: 50;
     }
 }
 
@@ -207,19 +398,24 @@ p {
 /* Item-row draggin styling */
 
 .mid-drag {
-    border:1px solid red;
+    opacity: 0.5;
+    z-index: 100;
 }
 
-.drag-target-move {
-    border:1px solid green;
+.dropzone.dropzone-feedback > .dropzone-bar {
+    background-color: rgb(109, 109, 109);
+
 }
+
+
+
 
 
 
 .bottom-container {
     display:flex;
     justify-self: flex-end;
-    margin-top: 24px;
+    margin: 0 0 24px 0;
     gap: 24px;
     align-items: flex-end;
 
@@ -242,7 +438,7 @@ p {
         display:flex;
         justify-content: center;
         align-items: center;
-        color:white;
+        color: black;
         font-weight: bold;
     }
 
@@ -270,6 +466,10 @@ p {
         background-color: var(--list-color-4);
     }
 
+    & .color-circle:nth-child(6) {
+        background-color: var(--list-color-5);
+    }
+
     & .delete-list-btn {
         margin-left:72px;
         border-radius: 24px;
@@ -278,5 +478,134 @@ p {
         color:white;
         font-weight: bold;
         padding:8px 16px;
+        transition: 0.2s;
+    }
+
+    & .delete-list-btn:hover {
+        background-color: rgb(44, 0, 0);
+    }
+}
+
+
+
+
+
+
+/* right side styling */
+
+#details-container {
+    /* position:sticky; */
+    /* height:100vh; */
+    /* z-index:150; */
+    /* top:0;
+    bottom:0; */
+    
+
+    background: linear-gradient(323deg, rgba(36,93,145,1) 0%, rgba(48,142,228,1) 100%);
+    color:white;
+    display:flex;
+    flex-direction:column;
+    align-items: flex-start;
+    padding: 16px;
+    gap: 16px;
+
+    & .title {
+        filter:drop-shadow(1px 1px 1px #000000);
+        margin: 0 0 16px 0;
+    }
+
+
+}
+
+#right-content-box {
+    display:flex;
+    flex-direction: column;
+    width:100%;
+    font-size: 0.8rem;
+    gap:20px;
+
+    & .add-item-top-row {
+        display:flex;
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    & #add-item-title {
+        resize:none;
+        overflow:hidden;
+        font-family: var(--app-font);
+        border:none;
+        border-radius: 12px;
+        color: black;
+        display:flex;
+        padding: 4px 8px 0 8px;
+        background-color: rgb(215, 231, 247);
+    }
+
+    & #add-item-title:focus-visible {
+        outline:none;
+    }
+
+    & .add-item-top-row > label {
+        text-align: center;
+        margin-top:4px;
+    }
+
+    & .select-completeby-container > input {
+        margin: 4px 0 0 0;
+        font-family: var(--app-font);
+    }
+
+    & .add-item-description-container {
+        display:flex;
+        flex-direction: column;
+        gap:4px;
+    }
+
+    & #add-item-description {
+        resize:none;
+        overflow:hidden;
+        font-family: var(--app-font);
+        border:none;
+        border-radius: 2px;
+        color: black;
+        display:flex;
+        padding: 4px 8px 0 8px;
+        background-color: rgb(215, 231, 247);
+    }
+
+    & #add-item-description:focus-visible {
+        outline:none;
+    }
+
+    & .add-item-button-row {
+        display:flex;
+        gap: 16px;
+    }
+
+    & .add-item-button-row > button {
+        border-radius: 24px;
+        padding: 8px 16px;
+        font-size:0.8rem;
+        border:none;
+        font-weight: bold;
+        transition: 0.2s;
+    }
+
+    & .add-button {
+        background-color: rgb(217, 217, 217);
+    }
+
+    & .close-button {
+        background-color: rgb(109, 0, 0);
+        color:white;
+    }
+
+    & .add-button:hover {
+        background-color: rgb(166, 166, 166);
+    }
+
+    & .close-button:hover {
+        background-color: rgb(44, 0, 0);
     }
 }
