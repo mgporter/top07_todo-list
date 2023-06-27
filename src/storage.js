@@ -21,10 +21,14 @@ export default function StorageController() {
     }
 
     function saveListToStorage(id, list) {
-        saveToStorage(`list${id}`, list)
+        saveToStorage(id, list)
     }
 
     function getListsFromStorage() {
+        // Each list is saved as a separate item in the localStorage object, and not
+        // as a sublevel of the 'session' object (as they are in the actual Session Object).
+        // This allows us to save a list to localStorage when that list is changed, without having
+        // to also save every other list as the same time.
         let lists = {}
         for (let i = 0; i < localStorage.length; i++) {
             const key = localStorage.key(i)
@@ -67,6 +71,8 @@ export default function StorageController() {
 
 
     return {
+        saveToStorage,
+        getFromStorage,
         retreiveSession,
         getSessionName,
         getListsFromStorage,

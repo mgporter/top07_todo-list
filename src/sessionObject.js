@@ -15,9 +15,17 @@ function SessionObj(username) {
         return session.username;
     }
 
-    function appendList(list) {
-        session.lists[_listCounter] = list;
-        _listCounter++;
+    // if passed an id, use that to populate the session object. 
+    // Otherwise, generate a unique id number from the listCounter.
+    function appendList(list, id=null) {
+        
+        const listId = id ? id : _listCounter
+
+        session.lists[listId] = list;
+        
+        if (!id) _listCounter++;
+
+        return listId           // return the appended list's id
     }
 
     function removeList(id) {
@@ -28,6 +36,10 @@ function SessionObj(username) {
         return Object.keys(session.lists).length;
     }
 
+    function setListCounterStart(num) {
+        _listCounter = num;
+    }
+
     return {
         session,
         getListById, 
@@ -35,22 +47,35 @@ function SessionObj(username) {
         appendList,
         removeList,
         getListCount,
+        setListCounterStart,
     }
 }
 
 
-function List(listName=null) {
+function List(arg=null) {
     
-    let _itemCounter = 0;
-        
-    const list = {
-        name: listName ? listName : `New List`,
-        lastModified: Date.now(),
-        details: '',
-        color: 0,
-        items: {},
-    }
+    let list = {};
 
+    if (typeof arg === 'string' | arg == null) {
+        list = {
+            name: arg ? arg : `New List`,
+            lastModified: Date.now(),
+            details: '',
+            color: 0,
+            items: {},
+            itemCounter: 0, 
+        }
+    } else if (typeof arg === 'object') {
+        list = {
+            name: arg.name,
+            lastModified: arg.lastModified,
+            details: arg.details,
+            color: arg.color,
+            items: arg.items,
+            itemCounter: arg.itemCounter
+        }
+    }
+    
     function getItemCount() {
         return Object.keys(list.items).length;
     }
@@ -61,8 +86,8 @@ function List(listName=null) {
     }
 
     function appendItem(item) {
-        list.items[_itemCounter] = item;
-        _itemCounter++;
+        list.items[list.itemCounter] = item;
+        list.itemCounter++;
     }
 
     function removeItem(id) {

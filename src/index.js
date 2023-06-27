@@ -2,6 +2,7 @@ import './meyer_reset.css';
 import './style.css';
 import {SessionObj, List, Item} from './sessionObject.js';
 import Storage from './storage.js';
+import DOMController from './domController.js';
 
 
 function StorageObjInterface() {
@@ -9,7 +10,9 @@ function StorageObjInterface() {
     let sessionObj;
     const storage = Storage();
 
-    function createTestSession() {
+    function createTestSession() {      // for testing only
+
+        sessionObj = SessionObj()
 
         let list1 = List('test list')
         let list2 = List()
@@ -31,6 +34,12 @@ function StorageObjInterface() {
         sessionObj.getListById(2).appendItem(item3)
         sessionObj.getListById(2).appendItem(item4)
 
+        storage.saveToStorage('username', 'default')
+        storage.saveToStorage('0', sessionObj.getListById(0))
+        storage.saveToStorage('1', sessionObj.getListById(1))
+        storage.saveToStorage('2', sessionObj.getListById(2))
+        storage.saveToStorage('3', sessionObj.getListById(3))
+
     }
 
     function initializeSession() {
@@ -41,19 +50,83 @@ function StorageObjInterface() {
     }
 
     function initializeLists() {
-        sessionObj.session.lists = storage.getListsFromStorage()
+        
+        // get the highest key (list id) number. We'll use this to make sure new lists that are
+        // added to the SessionObj get a higher id number (to make sure the id is unique)
+        let highestKey = 0;      
+
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i)
+            const obj = storage.getFromStorage(key)
+            if (Object.hasOwn(obj, 'list')) {
+                // Here we retrieve the list from localStorage, then use the
+                // factory function List to change it into a List object. Then we append it.
+
+                sessionObj.appendList(List(storage.getFromStorage(key).list), key);
+
+                if (key > highestKey) highestKey = key
+            };
+        };
+
+        sessionObj.setListCounterStart(Number(highestKey) + 1)
+
+        return localStorage.length > 1
     }
 
     function saveList(id) {
         storage.saveListToStorage(id, sessionObj.getListById(id))
     }
 
+    function getLists() {
+        return sessionObj.session.lists
+    }
+
+    function getListById(id) {
+        return sessionObj.getListById(id)
+    }
+
+    // return an array of the keys of the lists by lastModified time
+    // from most recent to earliest
+    function getListsInDateOrder() {     
+        const listsObj = sessionObj.session.lists
+        const listKeys = Object.keys(listsObj);
+
+        const listKeysSorted = listKeys.toSorted((a, b) => {
+            return listsObj[a].lastModified - listsObj[b].lastModified
+        })
+
+        return listKeysSorted
+    }
+
+    function updateListColor(activeList, colorIndex) {
+        const list = sessionObj.getListById(activeList)
+        list.list.color = colorIndex;
+        storage.saveListToStorage(activeList, list)
+    }
+
+    function createNewList() {
+        const list = List();
+        const listId = sessionObj.appendList(list)
+        storage.saveListToStorage(listId, list)
+        return listId
+    }
+
+    function deleteList(id) {
+        sessionObj.removeList(id)
+        localStorage.clear(id)
+    }
+
     return {
-        sessionObj,
         createTestSession,
         initializeSession,
         initializeLists,
         saveList,
+        getLists,
+        getListById,
+        getListsInDateOrder,
+        updateListColor,
+        createNewList,
+        deleteList,
     }
 }
 
@@ -61,11 +134,91 @@ function MainController() {
 
     // localStorage.clear()
     const obj = StorageObjInterface();
+    const dom = DOMController();
+
+    let testing = false;
+    if (testing) {
+        obj.createTestSession()
+        return
+    }
+
+    dom.generateLeftNav();
+    dom.generateContentPanel();
 
     obj.initializeSession();    // set username from local storage
-    obj.initializeLists();
+    const haveLists = obj.initializeLists();
 
-    // obj.createTestSession();    // for testing
+    const addListBtn = document.querySelector('.add-list-btn')
+    const userLists = document.getElementById('user-lists')
+    addListBtn.addEventListener('click', () => {
+        const listId = obj.createNewList();
+        const list = obj.getListById(listId).list
+        const newListRow = dom.generateListRow(listId, list.name, list.color, list.lastModified);
+        userLists.insertBefore(newListRow, userLists.firstChild)
+        dom.displayList(obj.getListById(listId), listId)
+    })
+
+    if (!haveLists) addListBtn.click();
+
+
+
+    const listKeysSorted = obj.getListsInDateOrder()
+
+    for (let listKey of listKeysSorted) {
+        const list = obj.getListById(listKey).list
+        const newList = dom.generateListRow(listKey, list.name, list.color, list.lastModified)
+        userLists.appendChild(newList)
+    }
+
+    dom.displayList(obj.getListById(listKeysSorted[0]), listKeysSorted[0])     // display the first list on pageload
+
+    // Add event listeners
+    const colorCircleContainer = document.querySelector('.color-circles-container')
+    colorCircleContainer.addEventListener('click', (e) => {
+        if (e.target.dataset.color) {
+            const colorIndex = e.target.dataset.color
+            dom.changeListColor(colorIndex)
+            obj.updateListColor(dom.getActiveList(), colorIndex)
+        }
+    })
+
+    // Add event listeners for the left-side list nav
+    const listRowContainer = document.getElementById('user-lists')
+    listRowContainer.addEventListener('click', (e) => {
+        if (e.target.dataset.listid) {
+            const listId = e.target.dataset.listid;
+            dom.displayList(obj.getListById(listId), listId)
+        }
+    })
+
+    const deleteListBtn = document.querySelector('.delete-list-btn')
+    const deleteListDialog = document.getElementById('delete-list-dialog')
+    const deleteListConfirmBtn = document.getElementById('confirm-delete-btn')
+    deleteListBtn.addEventListener('click', () => {
+        deleteListDialog.showModal();
+    })
+
+    deleteListDialog.addEventListener('close', () => {
+        if (deleteListDialog.returnValue === 'delete') {
+            const listId = dom.getActiveList()
+            obj.deleteList(listId)
+            const siblingId = dom.deleteList(listId)
+            if (siblingId) {
+                dom.displayList(obj.getListById(siblingId), siblingId)
+            } else {
+                // if the deleted element has no siblings, it is the last one, we'll just
+                // delete the content container
+                document.getElementById('content-container').remove()
+            }
+        }
+    })
+
+    deleteListConfirmBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        deleteListDialog.close(deleteListConfirmBtn.value);
+    })
+
+
 
 
 }
@@ -110,28 +263,14 @@ const mainController = MainController();
 
 // Dom module to load the appropriate list when a left navbar list is clicked 
 
-function listModule() {
-
-
-}
-
-
-
-
-
-function Controller() {
-
-    function loadFirstList() {
-
-    }
-
-}
 
 
 
 
 
 
+
+/* 
 
 
 
@@ -141,41 +280,7 @@ listDescription.style.height = listDescription.scrollHeight + 'px';
 
 
 
-const itemCircleDivs = document.querySelectorAll('.item-circle');
-itemCircleDivs.forEach((item) => {
-    
-    const itemCircle = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    itemCircle.setAttributeNS(null, 'viewBox', '-50 -50 100 100');
-    const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-    circle.setAttributeNS(null, 'r', 25);
-    circle.setAttributeNS(null, 'cx', 0);
-    circle.setAttributeNS(null, 'cy', 0);
-    circle.setAttributeNS(null, 'stroke', '#aaaaaa');
-    circle.setAttributeNS(null, 'stroke-width', '8');
-    circle.setAttributeNS(null, 'fill', 'white');
-    itemCircle.appendChild(circle)
 
-    const g = document.createElementNS('http://www.w3.org/2000/svg', 'g')
-    g.setAttributeNS(null, 'transform', 'scale(0)')
-    const circle2 = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-    circle2.setAttributeNS(null, 'r', 25);
-    circle2.setAttributeNS(null, 'cx', 0);
-    circle2.setAttributeNS(null, 'cy', 0);
-    circle2.setAttributeNS(null, 'fill', '#009f1d');
-    const checkmark = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-    checkmark.setAttributeNS(null, 'stroke-width', '1')
-    checkmark.setAttributeNS(null, 'x', '-30')
-    checkmark.setAttributeNS(null, 'y', '0')
-    checkmark.setAttributeNS(null, 'stroke', '#000000')
-    checkmark.setAttributeNS(null, 'fill', '#ffffff')
-    checkmark.setAttributeNS(null, 'transform', 'scale(0.8) translate(-37, -50) rotate(-5)')
-    checkmark.setAttributeNS(null, 'd', 'M 34.4 72 c -1.2 0 -2.3 -0.4 -3.2 -1.3 L 11.3 50.8 c -1.8 -1.8 -1.8 -4.6 0 -6.4 c 1.8 -1.8 4.6 -1.8 6.4 0 l 16.8 16.7 l 39.9 -39.8 c 1.8 -1.8 4.6 -1.8 6.4 0 c 1.8 1.8 1.8 4.6 0 6.4 l -43.1 43 C 36.7 71.6 35.6 72 34.4 72 Z')
-    g.append(circle2, checkmark)
-
-    itemCircle.appendChild(g)
-
-    item.append(itemCircle);
-})
 
 function addItemCircleAnimationIn(e) {
     this.classList.toggle('itemCompleted')
@@ -312,3 +417,8 @@ textAreas.forEach((area) => {
         element.style.height = element.scrollHeight + 'px';
     })
 })
+
+
+
+
+*/

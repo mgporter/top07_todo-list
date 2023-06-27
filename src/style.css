@@ -1,6 +1,6 @@
 :root {
     font-size: 16px;
-    --list-color-0: #ffffff;
+    /* --list-color-0: #ffffff;
     --list-color-1: #ffeb3b;
     --list-color-2: #aeea00;
     --list-color-3: #80deea;
@@ -11,7 +11,7 @@
     --bg-color-2: #aeea0011;
     --bg-color-3: #80deea11;
     --bg-color-4: #ff80ab11;
-    --bg-color-5: #ff9e0011;
+    --bg-color-5: #ff9e0011; */
     --app-font: 'Open Sans', 'Calibri', sans-serif;
 }
 
@@ -169,7 +169,7 @@ p {
 #user-lists {
     display:flex;
     flex-direction: column;
-    margin: 24px 16px 58px 16px;
+    margin: 24px 8px 58px 8px;
     gap: 8px;
 }
 
@@ -181,6 +181,12 @@ p {
     gap:6px;
     color:black;
     border-radius: 16px;
+    cursor: pointer;
+}
+
+/* Don't let the child elements be the target of a click. Only the list-row can be a target. */
+.list-row * {
+    pointer-events: none;
 }
 
 & .list-row:hover {
@@ -191,7 +197,6 @@ p {
 .list-circle {
     width:10px;
     height:10px;
-    background-color: var(--list-color-1);
     border: 1px solid rgb(181, 181, 181);
     border-radius:100%;
 }
@@ -444,30 +449,6 @@ p {
 
     & .color-circle:hover {
         border-color: black;
-    }
-
-    & .color-circle:nth-child(1) {
-        background-color: var(--list-color-0);
-    }
-
-    & .color-circle:nth-child(2) {
-        background-color: var(--list-color-1);
-    }
-
-    & .color-circle:nth-child(3) {
-        background-color: var(--list-color-2);
-    }
-
-    & .color-circle:nth-child(4) {
-        background-color: var(--list-color-3);
-    }
-
-    & .color-circle:nth-child(5) {
-        background-color: var(--list-color-4);
-    }
-
-    & .color-circle:nth-child(6) {
-        background-color: var(--list-color-5);
     }
 
     & .delete-list-btn {
