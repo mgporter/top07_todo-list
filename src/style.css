@@ -59,6 +59,18 @@ p {
     line-height: 1.2rem;
 }
 
+div, button {
+    transition:0.2s;
+}
+
+button:hover {
+    background-color: rgb(216, 216, 216);
+}
+
+/* textarea {
+    min-height: 1rem;
+} */
+
 
 
 /* grid layout setup */
@@ -151,13 +163,14 @@ p {
             justify-content: center;
             align-items: center;
             
-            width:20px;
-            height:20px;
+            width:22px;
+            height:22px;
             border-radius: 100%;
             background-color: rgb(94, 94, 94);
             color:white;
             border: 1px solid black;
-            transition: 0.2s;
+            flex: 0 0 auto;
+            /* transition: 0.2s; */
         }
 
         & .add-list-btn:hover {
@@ -176,7 +189,7 @@ p {
 .list-row {
     display:flex;
     align-items: center;
-    padding: 4px;
+    padding: 6px;
     font-size:0.8rem;
     gap:6px;
     color:black;
@@ -189,9 +202,9 @@ p {
     pointer-events: none;
 }
 
-& .list-row:hover {
+.list-row:hover, .list-row.selected {
     background-color: white;
-    transition: 0.1s;
+    /* transition: 0.1s; */
 }
 
 .list-circle {
@@ -199,15 +212,17 @@ p {
     height:10px;
     border: 1px solid rgb(181, 181, 181);
     border-radius:100%;
+    flex: 0 0 auto;
 }
 
-/* .list-name {
-
-} */
+.list-name {
+    flex: 2 1 auto;
+}
 
 .list-date {
     color: gray;
     font-style:italic;
+    flex: 1 1 auto;
 }
 
 
@@ -250,6 +265,7 @@ p {
     font-size:3rem;
     font-weight:bold;
     border:none;
+    width: fit-content;
     appearance: none;
     line-height: 4rem;
     padding: 0 0 0 10px;
@@ -295,6 +311,8 @@ p {
     & button {
         width:1.4rem;
         height:1.4rem;
+        border-radius: 2px;
+        border:1px solid black;
     }
 
     & h4 {
@@ -309,6 +327,7 @@ p {
     align-items: flex-start;
     gap:8px;
     position:relative;
+    flex-wrap: wrap;
 
     & .item-circle {
         width: 1.6rem;
@@ -317,6 +336,7 @@ p {
         justify-content: center;
         align-items:center;
         position: relative;
+        flex: 0 0 auto;
 
         & > svg {
             width: 100%;
@@ -326,7 +346,8 @@ p {
             right:0;
             bottom:0;
             left:0;
-            z-index:5
+            z-index:5;
+            pointer-events: all;
         }
 
         & > svg.itemCompleted > g {
@@ -349,6 +370,12 @@ p {
         user-select: none;
         position: relative;
         z-index: 10;
+        min-width: 50%;
+        background-blend-mode: inherit;
+    }
+
+    & .item-row * {
+        pointer-events: none;
     }
 
     /* We need to set the z-index higher than the dropzones here,
@@ -356,14 +383,14 @@ p {
     the element and prevent that drag. The higher hover z-index means
     that the element is already in front of the dropzone before
     the drag is started, which fixed this problem. */
-    & .item-row:hover {
-        background-color: rgb(238, 238, 238);
-        transition: 0.1s;
+    & .item-row:hover, & .item-row.selected {
+        background-color: rgba(0, 0, 0, 0.1);
         z-index: 100;
     }
 
     & .item-completeby {
         color: rgb(126, 126, 126);
+        flex: 0 0 120px;
     }
 
     & .dropzone {
@@ -385,14 +412,19 @@ p {
             border-radius: 4px;
             background-color: transparent;
             pointer-events: none;
-            transition: 0.3s;
+            /* transition: 0.3s; */
         }
     }
 
-    & .show-dropzones {
+    /* & .show-dropzones {
         visibility: visible;
         z-index: 50;
-    }
+    } */
+}
+
+.items-container.show-dropzones .dropzone {
+    visibility: visible;
+    z-index: 50;
 }
 
 @keyframes itemCompleted {
@@ -459,10 +491,48 @@ p {
         color:white;
         font-weight: bold;
         padding:8px 16px;
-        transition: 0.2s;
+        /* transition: 0.2s; */
     }
 
     & .delete-list-btn:hover {
+        background-color: rgb(44, 0, 0);
+    }
+}
+
+
+#delete-list-dialog {
+    padding:24px;
+    border-radius: 24px;
+    border: 1px solid gray;
+    box-shadow: 4px 4px 4px 4px #00000088;
+    
+    & > form {
+        display:flex;
+        flex-direction: column;
+        gap:24px;
+        align-items: center;
+        justify-content: center;
+    }
+
+    & p {
+        font-style: italic;
+        font-size:1.2rem;
+    }
+
+    & button {
+        border-radius: 16px;
+        padding: 8px 16px;
+        border: 1px solid rgb(76, 76, 76);
+        margin: 0 12px;
+    }
+
+    & button[value="delete"] {
+        font-weight:bold;
+        background-color: rgb(109, 0, 0);
+        color:white;
+    }
+
+    & button[value="delete"]:hover {
         background-color: rgb(44, 0, 0);
     }
 }
@@ -489,21 +559,19 @@ p {
     align-items: flex-start;
     padding: 16px;
     gap: 16px;
-
-    & .title {
-        filter:drop-shadow(1px 1px 1px #000000);
-        margin: 0 0 16px 0;
-    }
-
-
 }
 
-#right-content-box {
+#details-content-box {
     display:flex;
     flex-direction: column;
     width:100%;
     font-size: 0.8rem;
     gap:20px;
+
+    & .title {
+        filter:drop-shadow(1px 1px 1px #000000);
+        margin: 0 0 16px 0;
+    }
 
     & .add-item-top-row {
         display:flex;
@@ -532,9 +600,19 @@ p {
         margin-top:4px;
     }
 
+    & .select-completeby-container {
+        display:flex;
+        gap:12px;
+        align-items: center;
+    }
+
     & .select-completeby-container > input {
         margin: 4px 0 0 0;
         font-family: var(--app-font);
+    }
+
+    & .select-completeby-container > input:focus-visible {
+        outline:none;
     }
 
     & .add-item-description-container {
@@ -561,32 +639,51 @@ p {
 
     & .add-item-button-row {
         display:flex;
-        gap: 16px;
+        gap: 20px;
+        align-self: flex-start;
+        flex-wrap: wrap;
+        width: 100%;
     }
 
-    & .add-item-button-row > button {
+    & .add-item-button-row button {
         border-radius: 24px;
         padding: 8px 16px;
         font-size:0.8rem;
         border:none;
         font-weight: bold;
-        transition: 0.2s;
     }
 
     & .add-button {
-        background-color: rgb(217, 217, 217);
-    }
-
-    & .close-button {
-        background-color: rgb(109, 0, 0);
-        color:white;
+        background-color: rgb(173, 202, 255);
+        flex: 1 0 140px;
     }
 
     & .add-button:hover {
-        background-color: rgb(166, 166, 166);
+        background-color: rgb(115, 164, 255);
+    }
+
+    & .add-item-button-row-bottom {
+        display:flex;
+        gap: 16px;
+        flex: 1;
+    }
+
+    & .close-button {
+        background-color: rgb(217, 217, 217);
+        flex: 1;
     }
 
     & .close-button:hover {
+        background-color: rgb(166, 166, 166);
+    }
+
+    & .delete-button {
+        background-color: rgb(109, 0, 0);
+        color:white;
+        flex: 1;
+    }
+
+    & .delete-button:hover {
         background-color: rgb(44, 0, 0);
     }
 }

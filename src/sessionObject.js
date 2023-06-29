@@ -56,13 +56,17 @@ function List(arg=null) {
     
     let list = {};
 
+    // Make a new list using the argument as the list name, 
+    // or if passed a list object (such as from localStorage), then we can make a list object
+    // using all of the parameters from that object
     if (typeof arg === 'string' | arg == null) {
         list = {
-            name: arg ? arg : `New List`,
+            name: arg ? arg : `New Listtest`,
             lastModified: Date.now(),
-            details: '',
+            details: 'This is my new list',
             color: 0,
             items: {},
+            itemOrder: [],           // This array will contain the ids of the elements in the last order they were displayed in
             itemCounter: 0, 
         }
     } else if (typeof arg === 'object') {
@@ -72,6 +76,7 @@ function List(arg=null) {
             details: arg.details,
             color: arg.color,
             items: arg.items,
+            itemOrder: arg.itemOrder,
             itemCounter: arg.itemCounter
         }
     }
@@ -88,6 +93,8 @@ function List(arg=null) {
     function appendItem(item) {
         list.items[list.itemCounter] = item;
         list.itemCounter++;
+
+        return list.itemCounter - 1
     }
 
     function removeItem(id) {
