@@ -59,9 +59,9 @@ function List(arg=null) {
     // Make a new list using the argument as the list name, 
     // or if passed a list object (such as from localStorage), then we can make a list object
     // using all of the parameters from that object
-    if (typeof arg === 'string' | arg == null) {
+    if (typeof arg === 'string' || arg == null) {
         list = {
-            name: arg ? arg : `New Listtest`,
+            name: arg || 'New Listtest',
             lastModified: Date.now(),
             details: 'This is my new list',
             color: 0,
@@ -121,7 +121,7 @@ function List(arg=null) {
 function Item(itemName=null) {
 
     const item = {
-        name: itemName ? itemName : 'New Item',
+        name: itemName || 'New Item',
         completeBy: null,
         details: '',
         completed: false,

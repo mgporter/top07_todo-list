@@ -3,7 +3,7 @@ Odin Project todo list project from https://www.theodinproject.com/lessons/node-
 
 Things this todo app can do:
 
-1. doesn automatically updates info, but not if an update occurs within 1 second
+1. 
 
 
 Concepts learned:
