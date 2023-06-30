@@ -1,11 +1,6 @@
 # top07_todo-list
 Odin Project todo list project from https://www.theodinproject.com/lessons/node-path-javascript-todo-list
 
-Things this todo app can do:
-
-1. 
-
-
 Concepts learned:
 
 1. Javascript program flow and SOLID concepts using separate modules with distinct functions
